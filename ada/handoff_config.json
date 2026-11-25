@@ -1,0 +1,117 @@
+{
+  "_comment": [
+    "Configuration for the hand-off ADA mode (scripts/ada_handoff.py). Patterns are case-insensitive Python regexes.",
+    "A passage can carry several domains. 'general' is a separate column for passages about high-risk situations in",
+    "general (risk to life, imminent danger); by design it never raises a domain cell on its own. Set a domain's",
+    "'enabled' to true or false to add or drop it from the grid, the coding sheet's allowed values, and the claims."
+  ],
+  "default_documents": [
+    "openai_spec",
+    "claude_constitution"
+  ],
+  "products": {
+    "openai_spec": "OpenAI GPT models (ChatGPT and the OpenAI API), as described by the Model Spec version dated 2026/10/29",
+    "claude_constitution": "Anthropic's mainline, general-access Claude models, as described by Claude's Constitution (no version stated)"
+  },
+  "domains": [
+    {
+      "key": "mental_health",
+      "label": "Mental health crisis",
+      "enabled": true,
+      "patterns": [
+        "suicid",
+        "self-harm",
+        "self-injur",
+        "mental health",
+        "mental or emotional distress",
+        "emotional (?:support|topics|distress|experience)",
+        "psycholog",
+        "therap",
+        "counselor",
+        "crisis (?:resources|hotlines?|lines?)",
+        "disordered eating",
+        "delusion",
+        "mania",
+        "personal struggles",
+        "\\bvent\\b",
+        "safe messaging",
+        "radicaliz"
+      ]
+    },
+    {
+      "key": "medical",
+      "label": "Medical emergency",
+      "enabled": true,
+      "patterns": [
+        "medical",
+        "medication",
+        "doctor",
+        "physician",
+        "diagnos",
+        "dietary",
+        "\\bICUs?\\b",
+        "physical harm",
+        "(?<!mental )health(?! or safety)(?!y)",
+        "poison",
+        "overdose"
+      ]
+    },
+    {
+      "key": "legal",
+      "label": "Legal jeopardy",
+      "enabled": true,
+      "patterns": [
+        "\\blegal(?! but)(?!ly)(?:,| matters| advice| implications| help| jeopardy| trouble)",
+        "lawyer",
+        "attorney",
+        "\\bcourt\\b",
+        "\\barrest",
+        "\\bpolice\\b",
+        "illicit nature and possible consequences"
+      ]
+    },
+    {
+      "key": "financial",
+      "label": "Financial scam in progress",
+      "enabled": true,
+      "patterns": [
+        "financial",
+        "\\bscam",
+        "\\bfraud",
+        "\\bmoney\\b",
+        "\\bbank\\b",
+        "gambl"
+      ]
+    },
+    {
+      "key": "interpersonal_violence",
+      "label": "Interpersonal violence or abuse",
+      "enabled": false,
+      "patterns": [
+        "\\babuse",
+        "domestic violence",
+        "intimate partner",
+        "\\bassault",
+        "stalk",
+        "trafficking"
+      ]
+    }
+  ],
+  "general": {
+    "key": "general",
+    "label": "General / cross-domain high-risk",
+    "patterns": [
+      "risk to (?:human )?life",
+      "risk to the user['’]s safety",
+      "imminent (?:real-world )?(?:harm|danger)",
+      "immediate (?:danger|physical harm)",
+      "dangerous situation",
+      "emergency services",
+      "danger is imminent",
+      "vulnerab",
+      "safety precautions",
+      "basic safety information",
+      "dangerous activit"
+    ]
+  }
+}

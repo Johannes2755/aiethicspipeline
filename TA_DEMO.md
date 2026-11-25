@@ -1,3 +1,7 @@
+> **Note (Health Provider Hand-off Audit):** this is the TA's original demo write-up, kept as the reference for the AIE tool
+> and the coercion ADA run. The historical prompts, responses, scores, notebook and classroom demo it mentions were removed
+> from this repository (they remain in git history). Our project overview is in [README.md](README.md).
+
 # TA demonstration: ADA (documents) and AIE (observed behavior) for financial coercion
 
 A small, working demonstration of two evidence methods around the autonomy / non-coercion theme.

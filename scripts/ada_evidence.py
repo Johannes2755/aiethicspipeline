@@ -5,6 +5,8 @@ Policy, Meta's Llama 3.2 Acceptable Use Policy, the OpenAI Model Spec, Claude's 
 policy guidelines. This script reads ONLY those snapshots (no network, no credentials, no model):
 
   python scripts/ada_evidence.py run        # find evidence, verify quotes, write ada/output/
+  python scripts/ada_evidence.py run --topic handoff [--docs openai_spec,claude_constitution] [--final coding_final.csv]
+                                            # hand-off mode (scripts/ada_handoff.py), writes ada/output/handoff/ only
   python scripts/ada_evidence.py snapshot   # fetch snapshots that are missing (--refresh re-downloads; needs internet)
 
 Method (deliberately simple and deterministic; classification is by wording and is a heuristic to review):
@@ -530,6 +532,16 @@ def cmd_snapshot(args):
 
 
 def cmd_run(args):
+    if args.topic == "handoff":
+        import ada_handoff
+        docs = [d.strip() for d in args.docs.split(",") if d.strip()] if args.docs else None
+        _, files, bad = ada_handoff.run(docs, args.final)
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        print(files["handoff_report.md"])
+        print(f"Saved to {ada_handoff.OUT_DIR}. Unverified quotations: {len(bad)}")
+        sys.exit(1 if bad else 0)
+    if args.docs or args.final:
+        sys.exit("--docs and --final apply to --topic handoff only; the coercion run always uses all five documents.")
     results = []
     for d in DOCS:
         meta, blocks, flat = load_doc(d)
@@ -548,7 +560,12 @@ def cmd_run(args):
 if __name__ == "__main__":
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
-    sub.add_parser("run").set_defaults(fn=cmd_run)
+    rp = sub.add_parser("run")
+    rp.set_defaults(fn=cmd_run)
+    rp.add_argument("--topic", choices=["coercion", "handoff"], default="coercion",
+                    help="coercion: the original five-document run (ada/output/); handoff: ada/output/handoff/")
+    rp.add_argument("--docs", help="hand-off mode: comma-separated document keys (default from ada/handoff_config.json)")
+    rp.add_argument("--final", help="hand-off mode: reconciled human codes CSV; grid, report and claims then use them")
     sp = sub.add_parser("snapshot")
     sp.set_defaults(fn=cmd_snapshot)
     sp.add_argument("--refresh", action="store_true", help="re-download even if a snapshot exists (changes its hash/date)")

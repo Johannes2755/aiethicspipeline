@@ -108,10 +108,10 @@ class _Web(HTMLParser):
             self.authority = badge if badge in AUTHORITY_WORDS else None
             self.badge = []
             self.para = 0
-            self.blocks.append({"kind": "heading", "text": text, "ref": self._path(), "paragraph": 0})
+            self.blocks.append({"kind": "heading", "text": text, "ref": self._path(), "paragraph": 0, "tag": tag})
             return
         self.para += 1
-        self.blocks.append({"kind": kind, "text": text, "ref": self._path(), "paragraph": self.para})
+        self.blocks.append({"kind": kind, "text": text, "ref": self._path(), "paragraph": self.para, "tag": tag})
 
     def _path(self):
         path = " > ".join(self.headings[k] for k in sorted(self.headings)) or "(top of page)"
@@ -126,7 +126,9 @@ def blocks_web(raw):
     out = []
     for b in p.blocks:
         ref = b["ref"] + (f", paragraph {b['paragraph']}" if b["paragraph"] else " (heading)")
-        out.append({"ref": ref, "parent": None, "text": b["text"], "kind": b["kind"]})
+        # "tag" (p, li, td, ...) is extra context for the hand-off mode (lead-in sentences of lists); the
+        # coercion run ignores it.
+        out.append({"ref": ref, "parent": None, "text": b["text"], "kind": b["kind"], "tag": b["tag"]})
     return out
 
 
