@@ -59,7 +59,8 @@ Method in brief:
    plus `general` for high-risk situations in general.
 4. A **machine-suggested** level from 0 to 3:
    - 0: nothing found
-   - 1: disclaimer or user rule only
+   - 1: disclaimer or user rule only, or a referral described only in an analogy (what a human friend would do),
+     not stated as something the model should do
    - 2: refer, in general terms
    - 3: a high-risk condition and a specific kind of help, or a safeguard
 

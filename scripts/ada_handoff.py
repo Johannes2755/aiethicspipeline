@@ -18,7 +18,8 @@ For every candidate sentence it records:
              heading) mentions, plus "general" for high-risk situations in general
   level      a MACHINE SUGGESTION, 0-3, of the level this passage supports:
                0 nothing about hand-offs (risk mentioned, no referral, disclaimer, or user rule)
-               1 only a disclaimer or a rule for users
+               1 only a disclaimer or a rule for users, or a referral described only in an analogy (what a human
+                 friend or professional would do), not stated as something the model should do
                2 says the model should refer / hand off, in general terms
                3 says it specifically (a high-risk condition AND a specific kind of help), or describes a safeguard
   flags      adjustable_default, holds_regardless_of_operator, stance (endorses / cautions_against over-referral),
@@ -124,6 +125,9 @@ SAFETY_MESSAGING = re.compile(r"safe messaging|messaging around safety|safety an
 # Mentions of a professional the user could be sent to; makes a sentence a candidate so raters can judge it.
 PROFESSIONAL = re.compile(r"\b(?:doctor|lawyer|attorney|physician|financial advisor|therapist|counselor)s?\b", re.I)
 # A sentence that points back to the paragraph's domains ("in that domain"): its domains include the paragraph's.
+# A referral attributed to a human in an analogy ("A friend who ... will ... know when and who to refer us to"):
+# it takes its domains from the sentence that sets up the analogy, and counts as level 1, not as a model commitment.
+ANALOGY = re.compile(r"^\s*(?:a|an|the|such a) (?:friend|person|human|professional|doctor|lawyer)\b", re.I)
 ANAPHORA = re.compile(r"\b(?:that|this|the relevant|these|such) (?:domain|topics?|matters?|situations?|cases?)\b", re.I)
 NEGATED_RISK = re.compile(r"\babsent\b|\bno risk\b|\bnot at risk\b|low[- ]risk", re.I)
 CRISIS_TERMS = re.compile(r"suicid|self-harm|self-injur|crisis|imminent|immediate danger|risk to (?:human )?life|emergency", re.I)
@@ -196,6 +200,8 @@ def context(blocks):
 
 def suggest(p):
     """Machine-suggested level for one passage (0-3) and the reason."""
+    if p.get("analogy") and p["handoff_action"]:
+        return 1, "referral described only in an analogy (what a human friend or professional does), not as model behavior"
     if p["stance"] == "cautions_against":
         return 0, "argues against reflexive referral (counter-commitment); kept for the over-referral side of the construct"
     if p["category"] == "safeguard_description" and p["handoff_action"]:
@@ -249,7 +255,13 @@ def analyse_handoff(doc, meta, blocks, flat, cfg):
                     and cat not in ("model_behavior", "declared_intention", "safeguard_description", "user_restriction")):
                 continue   # a crisis word in passing (e.g. "mental health crises" as a research goal)
             para = [d for t in A.sentences(b["text"]) if t != sent for d in domains_in(FALSE_FRIEND.sub(" ", t), cfg)]
-            if dom_s and ANAPHORA.search(sent) and set(para) - set(dom_s):
+            sents = A.sentences(b["text"])
+            earlier = sents[:sents.index(sent)] if sent in sents else []
+            setup = next((s for s in reversed(earlier) if domains_in(FALSE_FRIEND.sub(" ", s), cfg)), None)
+            analogy = bool(action and ANALOGY.search(sent) and not A.MODEL_SUBJECT.search(sent))
+            if analogy and not dom_s and setup:
+                doms, dsrc = domains_in(FALSE_FRIEND.sub(" ", setup), cfg), "earlier sentence setting up the analogy"
+            elif dom_s and ANAPHORA.search(sent) and set(para) - set(dom_s):
                 doms, dsrc = sorted(set(dom_s) | set(para), key=cfg["domain_keys"].index), "sentence+paragraph"
             elif dom_s:
                 doms, dsrc = dom_s, "sentence"
@@ -283,7 +295,7 @@ def analyse_handoff(doc, meta, blocks, flat, cfg):
                  "adjustable_default": bool(group.get(i)) or (auth is not None and auth.group(1) in ("User", "Guideline", "Developer")),
                  "holds_regardless_of_operator": bool(leadin and REGARDLESS.search(leadin)),
                  "authority": auth.group(1) if auth else None, "audience": audience,
-                 "commentary": b["kind"] == "commentary"}
+                 "commentary": b["kind"] == "commentary", "analogy": analogy}
             p["level"], p["level_why"] = suggest(p)
             p["quote_verified"] = A.verified(sent, flat)
             p["lead_in_verified"] = A.verified(leadin, flat) if leadin else None
@@ -444,7 +456,9 @@ def flags(p):
         f.append("disclaimer + referral in one sentence")
     if p.get("permissive_only"):
         f.append("permission (may/can), not an obligation")
-    if p["domain_source"] in ("lead-in", "heading"):
+    if p.get("analogy"):
+        f.append("referral in an analogy (level 1)")
+    if p["domain_source"] in ("lead-in", "heading", "earlier sentence setting up the analogy"):
         f.append(f"domain from {p['domain_source']}")
     if p["category_why"].startswith("inferred"):
         f.append("category inferred")
@@ -464,7 +478,7 @@ def render(results, eff, g, cfg, source):
          "", "> A document is not evidence of behavior. Each document covers only its own company's models. 'Not found' means "
          "not found in these snapshots by these rules.", "",
          "## Level grid" + (" (machine suggestion)" if source != "human_final" else " (human final)"), "",
-         "Levels: 0 nothing found, 1 disclaimer or user rule only, 2 says the model should refer in general terms, 3 says when and to "
+         "Levels: 0 nothing found, 1 disclaimer, user rule, or a referral only in an analogy, 2 says the model should refer in general terms, 3 says when and to "
          "what kind of help, or describes a safeguard. The General column is passages about high-risk situations in general; it "
          "does not raise a domain cell.", ""]
     cols = cfg["domain_keys"]

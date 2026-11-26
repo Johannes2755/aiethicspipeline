@@ -69,6 +69,11 @@ class HandoffRun(unittest.TestCase):
         p = self.by_quote("Suggesting professional help when discussing personal struggles")
         self.assertTrue(p["adjustable_default"])
         self.assertLess(p["level"], 3, "a low-risk ('risk indicators are absent') default is not a level-3 commitment")
+        p = self.by_quote("A friend who happens to have the same level of knowledge as a professional")
+        self.assertEqual(p["level"], 1, "a referral described only in an analogy is level 1")
+        self.assertTrue({"legal", "financial"} <= set(p["domains"]))
+        grid = {(c["company"], c["domain"]): c["level"] for c in json.loads(self.files["handoff_findings.json"])["grid"]}
+        self.assertEqual((grid[("Anthropic", "legal")], grid[("Anthropic", "financial")]), (1, 1))
 
     def test_false_friends_are_not_handoffs(self):
         quotes = {p["quote"] for p in self.passages if p["handoff_action"]}
