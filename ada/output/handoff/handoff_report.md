@@ -1,6 +1,6 @@
 # Health Provider Hand-off Audit: ADA findings (documentary)
 
-**Indicator (ADA):** "Clear hand-offs to humans or professional help for high-risk queries" (L3 160.110.150, Health & Agent Hand-offs). No L4 ID is asserted.  
+**L4 indicator (ADA):** "Clear hand-offs to humans or professional help for high-risk queries" (under L3 160.110.150, Health & Agent Hand-offs).  
 **Construct:** hand-off fidelity, documentary side: how specifically and checkably a provider's public materials commit its model to recognizing risk, referring to suitable human or professional help, and continuing to engage.  
 **Method:** keyword rules over two dated snapshots, deterministic, no model. Every quotation is re-checked against an independent text view of its snapshot. Categories, domains and levels below are **MACHINE SUGGESTIONS**, to be replaced by the raters' reconciled codes.
 

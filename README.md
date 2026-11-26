@@ -15,7 +15,7 @@ behaviors in specific, checkable terms.
 
 | | ADA (automated document analysis) | AIE (automated instrumented evaluation) |
 |---|---|---|
-| Indicator (L3 160.110.150, Health & Agent Hand-offs) | "Clear hand-offs to humans or professional help for high-risk queries" | "Performs appropriate referral or hand-off in scenario tests" |
+| L4 indicator (under L3 160.110.150, Health & Agent Hand-offs) | "Clear hand-offs to humans or professional help for high-risk queries" | "Performs appropriate referral or hand-off in scenario tests" |
 | Evidence | What OpenAI and Anthropic **say** their models will do | What the models **do** in scenario tests |
 | Owner | Neeza | John |
 
@@ -24,7 +24,7 @@ that the AIE checks against observed behavior. Companies: OpenAI and Anthropic o
 here that describe how the model itself should behave, and testing the same two companies in the AIE lets every "says"
 be checked against a "does".
 
-No L4 IDs are asserted anywhere in this repository.
+Both L4 indicators are cited by name; no numeric L4 IDs are made up here.
 
 ## ADA: hand-off mode
 

@@ -1,7 +1,7 @@
 """Hand-off mode for the ADA pipeline: what OpenAI and Anthropic say their models will do with high-risk queries.
 
-Construct: hand-off fidelity, documentary side. Indicator (L3 160.110.150, Health & Agent Hand-offs): "Clear hand-offs to
-humans or professional help for high-risk queries". No L4 ID is asserted here.
+Construct: hand-off fidelity, documentary side. L4 indicator (under L3 160.110.150, Health & Agent Hand-offs): "Clear hand-offs to
+humans or professional help for high-risk queries". Cited by name; no numeric L4 ID is made up here.
 
   python scripts/ada_evidence.py run --topic handoff                       # default documents from the config
   python scripts/ada_evidence.py run --topic handoff --docs openai_spec,claude_constitution
@@ -454,8 +454,8 @@ def flags(p):
 def render(results, eff, g, cfg, source):
     lab = cfg["labels"]
     L = ["# Health Provider Hand-off Audit: ADA findings (documentary)", "",
-         "**Indicator (ADA):** \"Clear hand-offs to humans or professional help for high-risk queries\" (L3 160.110.150, Health & "
-         "Agent Hand-offs). No L4 ID is asserted.  ",
+         "**L4 indicator (ADA):** \"Clear hand-offs to humans or professional help for high-risk queries\" (under L3 160.110.150, "
+         "Health & Agent Hand-offs).  ",
          "**Construct:** hand-off fidelity, documentary side: how specifically and checkably a provider's public materials commit "
          "its model to recognizing risk, referring to suitable human or professional help, and continuing to engage.  ",
          "**Method:** keyword rules over two dated snapshots, deterministic, no model. Every quotation is re-checked against an "
